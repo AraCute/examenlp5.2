@@ -1,0 +1,33 @@
+.tabla-container {
+  overflow-x: auto;
+}
+
+.tabla-medico {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #d4dde6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabla-medico thead {
+  background-color: #b0ccec;
+  color: rgb(0, 0, 0);
+}
+
+.tabla-medico th,
+.tabla-medico td {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.tabla-productos tbody tr:nth-child(even) {
+  background-color: #2e2e2e;
+}
+
+.tabla-productos tbody tr:hover {
+  background-color: #000000;
+  transition: background-color 0.3s ease;
+}

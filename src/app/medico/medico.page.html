@@ -1,0 +1,189 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Listado de Tickets Realizados al Soporte Médico</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <!-- Botón para agregar nuevo ticket médico -->
+  <div class="action-buttons">
+    <ion-button 
+      fill="solid" 
+      color="primary" 
+      (click)="showAddForm()"
+      *ngIf="!showForm">
+      <ion-icon name="add" slot="start"></ion-icon>
+      Agregar Ticket Médico
+    </ion-button>
+  </div>
+
+  <!-- Formulario para agregar/editar -->
+  <ion-card *ngIf="showForm" class="form-card">
+    <ion-card-header>
+      <ion-card-title>
+        {{ isEditing ? 'Editar Ticket Médico' : 'Nuevo Ticket Médico' }}
+      </ion-card-title>
+    </ion-card-header>
+    
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="6">
+            <ion-item>
+              <ion-label position="stacked">Asignado a *</ion-label>
+              <ion-input 
+                [(ngModel)]="formData.asignado" 
+                placeholder="Nombre del médico o responsable">
+              </ion-input>
+            </ion-item>
+          </ion-col>
+          
+          <ion-col size="12" size-md="6">
+            <ion-item>
+              <ion-label position="stacked">Estado</ion-label>
+              <ion-select [(ngModel)]="formData.estado">
+                <ion-select-option value="Pendiente">Pendiente</ion-select-option>
+                <ion-select-option value="En proceso">En proceso</ion-select-option>
+                <ion-select-option value="Resuelto">Resuelto</ion-select-option>
+                <ion-select-option value="Cerrado">Cerrado</ion-select-option>
+                <ion-select-option value="Cancelado">Cancelado</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        
+        <ion-row>
+          <ion-col size="12" size-md="6">
+            <ion-item>
+              <ion-label position="stacked">Asunto *</ion-label>
+              <ion-input 
+                [(ngModel)]="formData.asunto" 
+                placeholder="Ingrese el asunto del ticket">
+              </ion-input>
+            </ion-item>
+          </ion-col>
+          
+          <ion-col size="12" size-md="6">
+            <ion-item>
+              <ion-label position="stacked">Fecha de Creación</ion-label>
+              <ion-input 
+                [(ngModel)]="formData.fecha_creacion" 
+                placeholder="DD/MM/YYYY (automático si se deja vacío)">
+              </ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        
+        <ion-row>
+          <ion-col size="12">
+            <ion-item>
+              <ion-label position="stacked">Descripción *</ion-label>
+              <ion-textarea 
+                [(ngModel)]="formData.descripcion" 
+                placeholder="Descripción detallada del problema o consulta médica"
+                rows="4">
+              </ion-textarea>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      
+      <!-- Botones del formulario -->
+      <div class="form-buttons">
+        <ion-button 
+          fill="outline" 
+          color="medium" 
+          (click)="cancelOperation()">
+          <ion-icon name="close" slot="start"></ion-icon>
+          Cancelar
+        </ion-button>
+        
+        <ion-button 
+          fill="solid" 
+          color="primary" 
+          (click)="saveMedico()">
+          <ion-icon name="save" slot="start"></ion-icon>
+          {{ isEditing ? 'Actualizar' : 'Guardar' }}
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Tabla de tickets médicos -->
+  <div class="tabla-container" *ngIf="!showForm">
+    <table class="tabla-medico">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Asignado</th>
+          <th>Asunto</th>
+          <th>Descripción</th>
+          <th>Estado</th>
+          <th>Fecha Creación</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let medico of Medico">
+          <td>{{ medico.id }}</td>
+          <td>
+            <div class="assigned-info">
+              <ion-icon name="person-circle-outline"></ion-icon>
+              {{ medico.asignado }}
+            </div>
+          </td>
+          <td>{{ medico.asunto }}</td>
+          <td class="description-cell">
+            <div class="description-text">{{ medico.descripcion }}</div>
+          </td>
+          <td>
+            <ion-badge 
+              [color]="medico.estado === 'Resuelto' || medico.estado === 'Cerrado' ? 'success' : 
+                       medico.estado === 'En proceso' ? 'warning' : 
+                       medico.estado === 'Cancelado' ? 'danger' : 'medium'">
+              {{ medico.estado }}
+            </ion-badge>
+          </td>
+          <td>
+            <div class="date-info">
+              <ion-icon name="calendar-outline"></ion-icon>
+              {{ medico.fecha_creacion }}
+            </div>
+          </td>
+          <td class="action-column">
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              color="primary" 
+              (click)="editMedico(medico)"
+              title="Editar ticket">
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
+            
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              color="danger" 
+              (click)="confirmDelete(medico)"
+              title="Eliminar ticket">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mensaje si no hay datos -->
+  <div *ngIf="Medico.length === 0 && !showForm" class="no-data">
+    <ion-icon name="medical-outline" size="large"></ion-icon>
+    <h3>No hay tickets médicos registrados</h3>
+    <p>Comienza agregando tu primer ticket de soporte médico</p>
+    <ion-button fill="outline" (click)="showAddForm()">
+      <ion-icon name="add" slot="start"></ion-icon>
+      Agregar primer ticket
+    </ion-button>
+  </div>
+
+</ion-content>
