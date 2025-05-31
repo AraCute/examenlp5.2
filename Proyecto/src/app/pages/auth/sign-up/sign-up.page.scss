@@ -1,0 +1,34 @@
+ion-content {
+  --background: none; /* Elimina el color de fondo predeterminado */
+
+  background-image: url("/assets/fondo.png"); /* Ruta de la imagen */
+  background-size: cover; /* Ajusta la imagen para que cubra toda el área */
+  background-position: center; /* Centra la imagen */
+  background-repeat: no-repeat; /* Evita que la imagen se repita */
+  height: 100vh; /* Asegura que ocupe toda la altura de la pantalla */
+}
+
+/* Para el botón principal */
+.rose-gold-button {
+  --background: #b76e79; /* Color de fondo para "Iniciar sesión" */
+  --color: white; /* Color del texto */
+}
+
+/* Para el botón outline */
+.rose-gold-outline-button {
+  --border-color: #b76e79; /* Color del borde */
+  --color: #b76e79; /* Color del texto */
+}
+
+/* Si quieres aplicar hover para dar un efecto */
+.rose-gold-button:hover,
+.rose-gold-outline-button:hover {
+  --background: #9e4c58; /* Un tono más oscuro para el hover */
+  --border-color: #9e4c58; /* Un tono más oscuro para el borde */
+  --color: white; /* Texto blanco */
+}
+
+/* Espacio superior para el contenedor */
+.d-flex-center {
+  margin-top: 80px; /* Ajusta el valor según el espacio que desees */
+}

@@ -1,0 +1,344 @@
+// Estilos para el buscador
+.custom-searchbar {
+  --border-radius: 15px;
+  --background: #f5f5f5;
+  --color: #333;
+  --placeholder-color: #666;
+  margin: 5px 10px;
+}
+
+// Estilos para el chip de búsqueda
+ion-chip {
+  margin: 10px 5px;
+  --background: #f9eff1;
+  --color: #b76e79;
+}
+
+// Estilos para el segmento
+ion-segment {
+  --background: #ffffff;
+  padding: 5px;
+
+  ion-segment-button {
+    --indicator-color: #b76e79;
+    --color-checked: #b76e79;
+    --color: #666;
+  }
+}
+
+// Estilos existentes que debes mantener
+/* Mantén aquí tus estilos existentes */
+
+.notes-modal {
+  --height: 90%;
+  --width: 90%;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.custom-input {
+  font-size: 1.1rem;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  margin-top: 8px;
+}
+
+.custom-textarea {
+  font-size: 1rem;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  margin-top: 8px;
+  min-height: 250px;
+}
+
+ion-item {
+  --border-radius: 8px;
+  --background: #f8f9fa;
+  margin-bottom: 16px;
+}
+.profile-modal {
+  --height: 400px;
+  --width: 90%;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.password-modal {
+  --height: 500px;
+  --width: 90%;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+// Estilos para las tareas
+.completed-task {
+  opacity: 0.7;
+  background-color: rgba(46, 211, 111, 0.05);
+
+  ion-card-header,
+  ion-card-content {
+    background-color: transparent;
+  }
+}
+
+.completed-text {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+// Estilos para checkboxes de tareas
+ion-checkbox {
+  --size: 20px;
+  --checkmark-width: 2px;
+  margin-right: 12px;
+
+  &.checkbox-checked {
+    --background-checked: #2dd36f;
+    --border-color-checked: #2dd36f;
+  }
+}
+
+// Estilos para cards de tareas
+.task-card {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Estilos para el modal de tareas
+.task-modal {
+  --border-radius: 16px;
+
+  ion-content {
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+  }
+
+  ion-textarea {
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+  }
+}
+
+// Estilos para las categorías seleccionadas en el menú
+.selected-category {
+  --background: rgba(183, 110, 121, 0.1);
+  --color: #b76e79;
+
+  ion-icon {
+    color: #b76e79 !important;
+  }
+}
+
+// Estilos para el menú hamburguesa
+ion-menu {
+  ion-content {
+    --background: #f8f9fa;
+  }
+
+  ion-list {
+    background: transparent;
+  }
+
+  // Estilos para los items de categoría con botones
+  ion-item {
+    --inner-padding-end: 8px;
+
+    // Contenedor principal de cada categoría
+    > div:first-child {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: rgba(183, 110, 121, 0.05);
+      }
+    }
+
+    // Contenedor de botones de acción
+    > div[slot="end"] {
+      display: flex;
+      gap: 4px;
+      margin-left: 8px;
+
+      ion-button {
+        --padding-start: 4px;
+        --padding-end: 4px;
+        height: 32px;
+        width: 32px;
+      }
+    }
+  }
+}
+
+// Animación suave para los chips de categoría
+ion-chip {
+  transition: all 0.3s ease;
+}
+
+// Estilos mejorados para las tarjetas de notas
+ion-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  margin-bottom: 16px;
+
+  ion-card-header {
+    padding-bottom: 8px;
+
+    div {
+      align-items: flex-start;
+      gap: 12px;
+    }
+  }
+}
+
+// Estilos para la barra de búsqueda personalizada
+.custom-searchbar {
+  padding: 8px 16px;
+
+  .searchbar-input-container {
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Estilos para inputs y textareas personalizados
+.custom-input,
+.custom-textarea {
+  --border-radius: 8px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+
+// Estilos para los modales
+.category-modal,
+.notes-modal,
+.profile-modal,
+.password-modal {
+  --border-radius: 16px;
+
+  ion-content {
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+  }
+}
+
+// Estilo especial para la vista previa de categoría
+.category-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(183, 110, 121, 0.05);
+  border-radius: 8px;
+  margin: 16px 0;
+
+  ion-icon {
+    font-size: 24px;
+  }
+
+  span {
+    font-weight: 500;
+    color: #333;
+  }
+}
+
+// Responsive: ocultar el menú en pantallas grandes si lo deseas
+@media (min-width: 768px) {
+  ion-menu {
+    // Puedes agregar estilos específicos para tablets/desktop aquí
+    max-width: 300px;
+  }
+}
+
+// Estilo para el divider en el menú
+ion-item-divider {
+  --background: rgba(183, 110, 121, 0.05);
+  --color: #b76e79;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.5px;
+
+  // Botón del divider
+  ion-button {
+    --color: #b76e79;
+    --color-activated: #a86370;
+  }
+}
+
+// Hover effects para los items del menú (en dispositivos que lo soporten)
+@media (hover: hover) {
+  ion-menu ion-item:hover {
+    cursor: pointer;
+  }
+
+  ion-menu ion-button:hover {
+    --color: #a86370;
+  }
+}
+
+// Animaciones para los botones de acción
+ion-button {
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Estilos para badges/contadores
+ion-badge {
+  font-size: 0.7em;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+}
+
+// Mejoras visuales para formularios
+ion-item {
+  &.ion-margin-bottom {
+    margin-bottom: 16px;
+  }
+
+  ion-note {
+    font-size: 0.8em;
+    margin-top: 4px;
+  }
+}
+
+// Estilos para el selector de iconos y colores
+ion-select {
+  --placeholder-opacity: 0.6;
+}
+
+// Loading states (opcional)
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

@@ -1,0 +1,748 @@
+<!-- Menú Hamburguesa -->
+<ion-menu side="start" menuId="categoriesMenu" contentId="main-content">
+  <ion-header>
+    <ion-toolbar style="--background: #b76e79">
+      <ion-title style="color: white">Categorías</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-content>
+    <ion-list>
+      <!-- Opción "Todas las categorías" -->
+      <ion-item 
+        button 
+        (click)="selectCategory('all')"
+        [class.selected-category]="selectedCategory === 'all'"
+      >
+        <ion-icon name="apps" slot="start" color="medium"></ion-icon>
+        <ion-label>Todas las categorías</ion-label>
+        <ion-badge *ngIf="selectedCategory === 'all'" color="primary" slot="end">
+          {{ notes.length }}
+        </ion-badge>
+      </ion-item>
+
+      <ion-item-divider>
+        <ion-label>Mis Categorías</ion-label>
+        <!-- Botón para agregar nueva categoría -->
+        <ion-button fill="clear" size="small" slot="end" (click)="addCategory()">
+          <ion-icon name="add-circle" color="primary"></ion-icon>
+        </ion-button>
+      </ion-item-divider>
+
+      <!-- Categorías dinámicas -->
+      <ion-item 
+        *ngFor="let category of categories"
+        [class.selected-category]="selectedCategory === category.id"
+      >
+        <!-- Parte clickeable para seleccionar categoría -->
+        <div 
+          (click)="selectCategory(category.id)"
+          style="display: flex; align-items: center; flex: 1; cursor: pointer; padding: 8px 0;"
+        >
+          <ion-icon [name]="category.icon" [color]="category.color" style="margin-right: 12px;"></ion-icon>
+          <ion-label>{{ category.name }}</ion-label>
+          <ion-badge 
+            *ngIf="selectedCategory === category.id" 
+            [color]="category.color" 
+            style="margin-left: auto; margin-right: 8px;"
+          >
+            {{ notes.length }}
+          </ion-badge>
+        </div>
+
+        <!-- Botones de acción -->
+        <div slot="end" style="display: flex; gap: 4px;">
+          <ion-button fill="clear" size="small" (click)="editCategory(category)">
+            <ion-icon name="pencil" color="medium" size="small"></ion-icon>
+          </ion-button>
+          <ion-button 
+            fill="clear" 
+            size="small" 
+            (click)="deleteCategory(category)"
+            [disabled]="category.isDefault"
+          >
+            <ion-icon 
+              name="trash" 
+              [color]="category.isDefault ? 'light' : 'danger'" 
+              size="small"
+            ></ion-icon>
+          </ion-button>
+        </div>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<!-- Contenido Principal -->
+<div id="main-content">
+  <ion-header translucent="true">
+    <ion-toolbar style="--background: #b76e79">
+      <!-- Botón del menú hamburguesa -->
+      <ion-buttons slot="start">
+        <ion-menu-button color="light"></ion-menu-button>
+      </ion-buttons>
+      
+      <ion-title>{{ getCurrentCategoryName() }}</ion-title>
+      
+      <ion-buttons slot="end">
+        <ion-button id="profile-trigger">
+          <ion-icon
+            name="person-circle-outline"
+            slot="icon-only"
+            style="font-size: 24px; color: white"
+          ></ion-icon>
+        </ion-button>
+      </ion-buttons>
+
+      <!-- Menú desplegable para el perfil -->
+      <ion-popover
+        trigger="profile-trigger"
+        triggerAction="click"
+        dismissOnSelect="true"
+      >
+        <ng-template>
+          <ion-content>
+            <ion-list lines="full">
+              <ion-item button detail="true" (click)="goToProfile()">
+                <ion-icon
+                  name="person-outline"
+                  slot="start"
+                  color="primary"
+                ></ion-icon>
+                <ion-label>Mi Perfil</ion-label>
+              </ion-item>
+              <ion-item button detail="true" (click)="goToChangePassword()">
+                <ion-icon
+                  name="key-outline"
+                  slot="start"
+                  color="warning"
+                ></ion-icon>
+                <ion-label>Cambiar Contraseña</ion-label>
+              </ion-item>
+              <ion-item button detail="true" (click)="signOut()">
+                <ion-icon
+                  name="log-out-outline"
+                  slot="start"
+                  color="danger"
+                ></ion-icon>
+                <ion-label>Cerrar Sesión</ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-content>
+        </ng-template>
+      </ion-popover>
+    </ion-toolbar>
+
+    <!-- Barra de búsqueda -->
+    <ion-toolbar>
+      <ion-searchbar
+        placeholder="Buscar notas..."
+        [(ngModel)]="searchTerm"
+        (ionChange)="searchNotes()"
+        animated
+        mode="ios"
+        color="light"
+        class="custom-searchbar"
+      ></ion-searchbar>
+    </ion-toolbar>
+
+    <!-- Segmento para cambiar entre notas y tareas -->
+    <ion-toolbar>
+      <ion-segment [(ngModel)]="currentView" (ionChange)="switchView($event.detail.value)">
+        <ion-segment-button value="notes">
+          <ion-label>Notas</ion-label>
+          <ion-icon name="document-text-outline"></ion-icon>
+        </ion-segment-button>
+        <ion-segment-button value="tasks">
+          <ion-label>Tareas</ion-label>
+          <ion-icon name="checkbox-outline"></ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+
+    <!-- Segmento para filtros (dependiendo de la vista) -->
+    <ion-toolbar *ngIf="currentView === 'notes'">
+      <ion-segment [(ngModel)]="showArchived" (ionChange)="toggleArchivedView()">
+        <ion-segment-button [value]="false">
+          <ion-label>Activas</ion-label>
+          <ion-icon name="document-text-outline"></ion-icon>
+        </ion-segment-button>
+        <ion-segment-button [value]="true">
+          <ion-label>Archivadas</ion-label>
+          <ion-icon name="archive-outline"></ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+
+    <ion-toolbar *ngIf="currentView === 'tasks'">
+      <ion-segment [(ngModel)]="showCompleted" (ionChange)="toggleCompletedView()">
+        <ion-segment-button [value]="false">
+          <ion-label>Pendientes</ion-label>
+          <ion-icon name="ellipse-outline"></ion-icon>
+        </ion-segment-button>
+        <ion-segment-button [value]="true">
+          <ion-label>Completadas</ion-label>
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content fullscreen="true" class="ion-padding">
+    <!-- Mostrar filtro de búsqueda activo si está buscando -->
+    <ion-chip *ngIf="isSearching" (click)="clearSearch()">
+      <ion-icon name="search-outline"></ion-icon>
+      <ion-label>{{ searchTerm }}</ion-label>
+      <ion-icon name="close-circle"></ion-icon>
+    </ion-chip>
+
+    <!-- Lista de notas -->
+    <div *ngIf="currentView === 'notes'">
+      <ion-card *ngFor="let note of notes">
+        <ion-card-header>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <ion-card-title>{{ note.title }}</ion-card-title>
+            <!-- Chip de categoría -->
+            <ion-chip [color]="getNoteCategory(note).color" outline>
+              <ion-icon [name]="getNoteCategory(note).icon"></ion-icon>
+              <ion-label>{{ getNoteCategory(note).name }}</ion-label>
+            </ion-chip>
+          </div>
+          <ion-card-subtitle *ngIf="note.createdAt">
+            {{ note.createdAt.toDate() | date:'medium' }}
+          </ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content> {{ note.content }} </ion-card-content>
+        <ion-item lines="none">
+          <ion-button fill="clear" (click)="editNote(note)">
+            <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <!-- Botón para archivar/desarchivar notas -->
+          <ion-button fill="clear" color="warning" (click)="toggleArchiveNote(note)">
+            <ion-icon [name]="note.archived ? 'unarchive-outline' : 'archive-outline'" slot="icon-only"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" color="danger" (click)="deleteNote(note.id)">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-card>
+
+      <!-- Mensaje cuando no hay notas -->
+      <div class="ion-text-center ion-padding" *ngIf="notes.length === 0">
+        <p *ngIf="!showArchived && !isSearching && selectedCategory === 'all'">No tienes notas aún. ¡Agrega una!</p>
+        <p *ngIf="!showArchived && !isSearching && selectedCategory !== 'all'">No tienes notas en esta categoría.</p>
+        <p *ngIf="showArchived && !isSearching">No tienes notas archivadas.</p>
+        <p *ngIf="isSearching">No se encontraron notas que coincidan con tu búsqueda.</p>
+      </div>
+    </div>
+
+    <!-- Lista de tareas -->
+    <div *ngIf="currentView === 'tasks'">
+      <ion-card *ngFor="let task of tasks" [class.completed-task]="task.completed">
+        <ion-card-header>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+              <!-- Checkbox para marcar como completada -->
+              <ion-checkbox 
+                [checked]="task.completed" 
+                (ionChange)="toggleTaskCompleted(task)"
+                [color]="task.completed ? 'success' : 'medium'"
+              ></ion-checkbox>
+              <ion-card-title [class.completed-text]="task.completed">{{ task.title }}</ion-card-title>
+            </div>
+            <!-- Chip de categoría -->
+            <ion-chip [color]="getTaskCategory(task).color" outline>
+              <ion-icon [name]="getTaskCategory(task).icon"></ion-icon>
+              <ion-label>{{ getTaskCategory(task).name }}</ion-label>
+            </ion-chip>
+          </div>
+          <ion-card-subtitle *ngIf="task.createdAt">
+            Creada: {{ task.createdAt.toDate() | date:'medium' }}
+            <span *ngIf="task.completed && task.completedAt">
+              <br>Completada: {{ task.completedAt.toDate() | date:'medium' }}
+            </span>
+          </ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content *ngIf="task.description" [class.completed-text]="task.completed">
+          {{ task.description }}
+        </ion-card-content>
+        <ion-item lines="none">
+          <ion-button fill="clear" (click)="editTask(task)">
+            <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" color="danger" (click)="deleteTask(task.id)">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-card>
+
+      <!-- Mensaje cuando no hay tareas -->
+      <div class="ion-text-center ion-padding" *ngIf="tasks.length === 0">
+        <p *ngIf="!showCompleted && !isSearching && selectedCategory === 'all'">No tienes tareas pendientes. ¡Agrega una!</p>
+        <p *ngIf="!showCompleted && !isSearching && selectedCategory !== 'all'">No tienes tareas pendientes en esta categoría.</p>
+        <p *ngIf="showCompleted && !isSearching">No tienes tareas completadas.</p>
+        <p *ngIf="isSearching">No se encontraron tareas que coincidan con tu búsqueda.</p>
+      </div>
+    </div>
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button
+        style="--background: #b76e79; --color: #fff"
+        (click)="currentView === 'notes' ? addNote() : addTask()"
+      >
+        <ion-icon [name]="currentView === 'notes' ? 'add' : 'checkmark'"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <!-- Modal para crear/editar notas -->
+    <ion-modal
+      [isOpen]="showModal"
+      [backdropDismiss]="false"
+      [initialBreakpoint]="0.85"
+      [breakpoints]="[0, 0.5, 0.85, 1]"
+      class="notes-modal"
+    >
+      <ng-template>
+        <ion-header translucent="true">
+          <ion-toolbar style="--background: #b76e79; --color: white">
+            <ion-title
+              >{{ editingNote ? 'Editar Nota' : 'Nueva Nota' }}</ion-title
+            >
+            <ion-buttons slot="end">
+              <ion-button (click)="cancelNote()">
+                <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="ion-padding">
+          <form [formGroup]="noteForm" (ngSubmit)="saveNote()">
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Título</ion-label>
+              <ion-input
+                formControlName="title"
+                placeholder="Escribe un título para tu nota"
+                class="custom-input"
+              ></ion-input>
+              <ion-note
+                color="danger"
+                *ngIf="noteForm.get('title')?.hasError('required') && noteForm.get('title')?.touched"
+              >
+                El título es obligatorio
+              </ion-note>
+            </ion-item>
+
+            <!-- Selector de categoría -->
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Categoría</ion-label>
+              <ion-select 
+                formControlName="category" 
+                interface="popover"
+                placeholder="Selecciona una categoría"
+              >
+                <ion-select-option 
+                  *ngFor="let category of categories" 
+                  [value]="category.id"
+                >
+                  {{ category.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating">Contenido</ion-label>
+              <ion-textarea
+                formControlName="content"
+                placeholder="Escribe aquí el contenido de tu nota..."
+                rows="10"
+                autoGrow="true"
+                class="custom-textarea"
+              >
+              </ion-textarea>
+              <ion-note
+                color="danger"
+                *ngIf="noteForm.get('content')?.hasError('required') && noteForm.get('content')?.touched"
+              >
+                El contenido es obligatorio
+              </ion-note>
+            </ion-item>
+
+            <div class="ion-padding-top">
+              <ion-button
+                expand="block"
+                type="submit"
+                [disabled]="noteForm.invalid"
+                style="--background: #b76e79; --color: white"
+              >
+                <ion-icon name="save-outline" slot="start"></ion-icon>
+                Guardar
+              </ion-button>
+            </div>
+          </form>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Modal para crear/editar tareas -->
+    <ion-modal
+      [isOpen]="showTaskModal"
+      [backdropDismiss]="false"
+      [initialBreakpoint]="0.75"
+      [breakpoints]="[0, 0.5, 0.75, 1]"
+      class="task-modal"
+    >
+      <ng-template>
+        <ion-header translucent="true">
+          <ion-toolbar style="--background: #b76e79; --color: white">
+            <ion-title>{{ editingTask ? 'Editar Tarea' : 'Nueva Tarea' }}</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="cancelTask()">
+                <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="ion-padding">
+          <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+            <!-- Título de la tarea -->
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Título</ion-label>
+              <ion-input
+                formControlName="title"
+                placeholder="¿Qué necesitas hacer?"
+                class="custom-input"
+                maxlength="100"
+              ></ion-input>
+              <ion-note
+                color="danger"
+                *ngIf="taskForm.get('title')?.hasError('required') && taskForm.get('title')?.touched"
+              >
+                El título es obligatorio
+              </ion-note>
+            </ion-item>
+
+            <!-- Selector de categoría -->
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Categoría</ion-label>
+              <ion-select 
+                formControlName="category" 
+                interface="popover"
+                placeholder="Selecciona una categoría"
+              >
+                <ion-select-option 
+                  *ngFor="let category of categories" 
+                  [value]="category.id"
+                >
+                  {{ category.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Descripción (opcional) -->
+            <ion-item>
+              <ion-label position="floating">Descripción (opcional)</ion-label>
+              <ion-textarea
+                formControlName="description"
+                placeholder="Agrega detalles sobre la tarea..."
+                rows="4"
+                autoGrow="true"
+                class="custom-textarea"
+                maxlength="500"
+              >
+              </ion-textarea>
+            </ion-item>
+
+            <div class="ion-padding-top">
+              <ion-button
+                expand="block"
+                type="submit"
+                [disabled]="taskForm.invalid"
+                style="--background: #b76e79; --color: white"
+              >
+                <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+                {{ editingTask ? 'Actualizar' : 'Crear' }} Tarea
+              </ion-button>
+            </div>
+          </form>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Modal para crear/editar categorías -->
+    <ion-modal
+      [isOpen]="showCategoryModal"
+      [backdropDismiss]="false"
+      [initialBreakpoint]="0.75"
+      [breakpoints]="[0, 0.5, 0.75, 1]"
+      class="category-modal"
+    >
+      <ng-template>
+        <ion-header translucent="true">
+          <ion-toolbar style="--background: #b76e79; --color: white">
+            <ion-title>{{ editingCategory ? 'Editar Categoría' : 'Nueva Categoría' }}</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="cancelCategory()">
+                <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="ion-padding">
+          <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
+            <!-- Nombre de la categoría -->
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Nombre</ion-label>
+              <ion-input
+                formControlName="name"
+                placeholder="Nombre de la categoría"
+                class="custom-input"
+                maxlength="20"
+              ></ion-input>
+              <ion-note
+                color="danger"
+                *ngIf="categoryForm.get('name')?.hasError('required') && categoryForm.get('name')?.touched"
+              >
+                El nombre es obligatorio
+              </ion-note>
+              <ion-note
+                color="danger"
+                *ngIf="categoryForm.get('name')?.hasError('minlength') && categoryForm.get('name')?.touched"
+              >
+                El nombre debe tener al menos 2 caracteres
+              </ion-note>
+            </ion-item>
+
+            <!-- Selector de icono -->
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Icono</ion-label>
+              <ion-select 
+                formControlName="icon" 
+                interface="popover"
+                placeholder="Selecciona un icono"
+              >
+                <ion-select-option 
+                  *ngFor="let icon of availableIcons" 
+                  [value]="icon"
+                >
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <ion-icon [name]="icon"></ion-icon>
+                    {{ icon }}
+                  </div>
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Preview del icono seleccionado -->
+            <ion-item *ngIf="categoryForm.get('icon')?.value" class="ion-margin-bottom">
+              <ion-label>Vista previa:</ion-label>
+              <div slot="end" style="display: flex; align-items: center; gap: 8px;">
+                <ion-icon 
+                  [name]="categoryForm.get('icon')?.value" 
+                  [color]="categoryForm.get('color')?.value"
+                  size="large"
+                ></ion-icon>
+                <span>{{ categoryForm.get('name')?.value || 'Nombre de categoría' }}</span>
+              </div>
+            </ion-item>
+
+            <!-- Selector de color -->
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Color</ion-label>
+              <ion-select 
+                formControlName="color" 
+                interface="popover"
+                placeholder="Selecciona un color"
+              >
+                <ion-select-option 
+                  *ngFor="let color of availableColors" 
+                  [value]="color"
+                >
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <div 
+                      style="width: 16px; height: 16px; border-radius: 50%; border: 1px solid #ccc;"
+                      [style.background-color]="getColorHex(color)"
+                    ></div>
+                    {{ color | titlecase }}
+                  </div>
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <div class="ion-padding-top">
+              <ion-button
+                expand="block"
+                type="submit"
+                [disabled]="categoryForm.invalid"
+                style="--background: #b76e79; --color: white"
+              >
+                <ion-icon name="save-outline" slot="start"></ion-icon>
+                {{ editingCategory ? 'Actualizar' : 'Crear' }} Categoría
+              </ion-button>
+            </div>
+          </form>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Modal para editar perfil -->
+    <ion-modal
+      [isOpen]="showProfileModal"
+      [backdropDismiss]="false"
+      class="profile-modal"
+    >
+      <ng-template>
+        <ion-header translucent="true">
+          <ion-toolbar style="--background: #b76e79; --color: white">
+            <ion-title>Mi Perfil</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="cancelProfile()">
+                <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="ion-padding">
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Nombre</ion-label>
+              <ion-input
+                formControlName="displayName"
+                placeholder="Tu nombre"
+                class="custom-input"
+              ></ion-input>
+              <ion-note
+                color="danger"
+                *ngIf="profileForm.get('displayName')?.hasError('required') && profileForm.get('displayName')?.touched"
+              >
+                El nombre es obligatorio
+              </ion-note>
+            </ion-item>
+
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Email</ion-label>
+              <ion-input
+                formControlName="email"
+                type="email"
+                readonly
+                class="custom-input"
+              ></ion-input>
+              <ion-note>El email no se puede cambiar</ion-note>
+            </ion-item>
+
+            <div class="ion-padding-top">
+              <ion-button
+                expand="block"
+                type="submit"
+                [disabled]="profileForm.invalid"
+                style="--background: #b76e79; --color: white"
+              >
+                <ion-icon name="save-outline" slot="start"></ion-icon>
+                Guardar Cambios
+              </ion-button>
+            </div>
+          </form>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Modal para cambiar contraseña -->
+    <ion-modal
+      [isOpen]="showPasswordModal"
+      [backdropDismiss]="false"
+      class="password-modal"
+    >
+      <ng-template>
+        <ion-header translucent="true">
+          <ion-toolbar style="--background: #b76e79; --color: white">
+            <ion-title>Cambiar Contraseña</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="cancelPasswordChange()">
+                <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="ion-padding">
+          <form [formGroup]="passwordForm" (ngSubmit)="saveNewPassword()">
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Contraseña Actual</ion-label>
+              <ion-input
+                formControlName="currentPassword"
+                type="password"
+                placeholder="Contraseña actual"
+                class="custom-input"
+              ></ion-input>
+              <ion-note
+                color="danger"
+                *ngIf="passwordForm.get('currentPassword')?.hasError('required') && passwordForm.get('currentPassword')?.touched"
+              >
+                La contraseña actual es obligatoria
+              </ion-note>
+            </ion-item>
+
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Nueva Contraseña</ion-label>
+              <ion-input
+                formControlName="newPassword"
+                type="password"
+                placeholder="Nueva contraseña"
+                class="custom-input"
+              ></ion-input>
+              <ion-note
+                color="danger"
+                *ngIf="passwordForm.get('newPassword')?.hasError('required') && passwordForm.get('newPassword')?.touched"
+              >
+                La nueva contraseña es obligatoria
+              </ion-note>
+              <ion-note
+                color="danger"
+                *ngIf="passwordForm.get('newPassword')?.hasError('minlength') && passwordForm.get('newPassword')?.touched"
+              >
+                La contraseña debe tener al menos 6 caracteres
+              </ion-note>
+            </ion-item>
+
+            <ion-item class="ion-margin-bottom">
+              <ion-label position="floating">Confirmar Contraseña</ion-label>
+              <ion-input
+                formControlName="confirmPassword"
+                type="password"
+                placeholder="Confirma tu nueva contraseña"
+                class="custom-input"
+              ></ion-input>
+              <ion-note
+                color="danger"
+                *ngIf="passwordForm.get('confirmPassword')?.hasError('required') && passwordForm.get('confirmPassword')?.touched"
+              >
+                Debes confirmar la nueva contraseña
+              </ion-note>
+              <ion-note
+                color="danger"
+                *ngIf="passwordForm.hasError('passwordsNotMatch') && passwordForm.get('confirmPassword')?.touched"
+              >
+                Las contraseñas no coinciden
+              </ion-note>
+            </ion-item>
+
+            <div class="ion-padding-top">
+              <ion-button
+                expand="block"
+                type="submit"
+                [disabled]="passwordForm.invalid"
+                style="--background: #b76e79; --color: white"
+              >
+                <ion-icon name="save-outline" slot="start"></ion-icon>
+                Cambiar Contraseña
+              </ion-button>
+            </div>
+          </form>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  </ion-content>
+</div>

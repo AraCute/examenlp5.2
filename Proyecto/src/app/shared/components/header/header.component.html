@@ -1,0 +1,15 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: #f1c6b7">
+    <!-- Rose Gold -->
+    <ion-buttons slot="start">
+      <ion-back-button
+        *ngIf="backButton"
+        [defaultHref]="backButton"
+      ></ion-back-button>
+    </ion-buttons>
+
+    <ion-title class="admin">
+      <strong>{{ title }}</strong>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>

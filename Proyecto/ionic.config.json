@@ -1,0 +1,7 @@
+{
+  "name": "academix",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
